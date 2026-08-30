@@ -243,14 +243,21 @@
     background:var(--maroon-700); color:#fff; text-align:left; font-size:.72rem; letter-spacing:.04em;
     text-transform:uppercase; font-weight:700; padding:10px 16px; white-space:nowrap;
   }
-  table.doc-table thead th.num{ text-align:right; }
+  table.doc-table thead th.num{ text-align:center; }
   table.doc-table tbody td{ padding:9px 16px; font-size:.86rem; border-bottom:1px solid var(--line); white-space:nowrap; }
-  table.doc-table tbody td.num{ text-align:right; }
+  table.doc-table tbody td.num{ text-align:center; }
   table.doc-table tbody td.desc{ color:var(--rose-400); font-weight:600; }
   table.doc-table tbody td.desc.desc-editable{ cursor:pointer; text-decoration:underline dotted; text-underline-offset:3px; }
   table.doc-table tbody td.desc.desc-editable:hover{ color:var(--maroon-700); }
   @media print{
     table.doc-table tbody td.desc.desc-editable{ cursor:default; text-decoration:none; }
+    .doc-wrap, .doc-wrap *{
+      -webkit-print-color-adjust:exact; print-color-adjust:exact; color-adjust:exact;
+    }
+    table.doc-table thead th{
+      background:#fff !important; color:var(--maroon-900) !important;
+      border-bottom:2px solid var(--maroon-700); box-shadow:none;
+    }
   }
   table.doc-table tbody tr:last-child td{ border-bottom:none; }
 
@@ -387,8 +394,7 @@
           <thead>
             <tr>
               <th>Descrição</th>
-              <th class="num" id="doc-col-mes">Mês (Costura Parcial)</th>
-              <th class="num">Total Peças</th>
+              <th class="num">Peças</th>
               <th class="num">Custo Unit.</th>
               <th class="num">Custo Total</th>
               <th class="num no-print">Ações</th>
@@ -859,7 +865,6 @@
 
     var key = state.activeMonthKey;
     var month = state.months[key];
-    document.getElementById("doc-col-mes").textContent = (month ? month.label : "") + " (Costura Parcial)";
 
     var rowsWrap = document.getElementById("doc-rows");
     var rowsHtml = "";
@@ -870,11 +875,9 @@
       anyRows = true;
       var cost = monthCostSnapshot(p.id, key);
       var total = monthTotal(p.id, key);
-      var mesLabel = escapeHtml((month ? month.label : "Mês") + " (peças)");
       rowsHtml += '<tr>' +
         '<td class="desc desc-editable" data-action="edit-product" data-id="' + p.id + '" title="Toque para editar o produto (nome e custo cadastrado)">' + escapeHtml(p.name) + '</td>' +
-        '<td class="num" data-label="' + mesLabel + '">' + qty + '</td>' +
-        '<td class="num" data-label="Total peças">' + lifetimeQty(p.id) + '</td>' +
+        '<td class="num" data-label="Peças">' + qty + '</td>' +
         '<td class="num" data-label="Custo unit.">' + fmtBRL.format(cost) + '</td>' +
         '<td class="num" data-label="Custo total">' + fmtBRL.format(total) + '</td>' +
         '<td class="num no-print doc-row-actions">' +
