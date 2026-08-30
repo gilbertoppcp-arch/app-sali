@@ -298,6 +298,23 @@
     .doc-total-row .arrow{ display:none; }
   }
 
+  .doc-note{ padding:16px 22px; }
+  .doc-note-label{
+    color:var(--ink-500); font-weight:700; letter-spacing:.03em; font-size:.7rem;
+    text-transform:uppercase; margin-bottom:6px;
+  }
+  .doc-note-text{ display:none; white-space:pre-wrap; color:var(--ink-900); font-size:.88rem; }
+  .doc-note-input{
+    width:100%; border:1px solid var(--line); border-radius:8px; padding:9px 12px;
+    font-family:inherit; font-size:.88rem; color:var(--ink-900); background:var(--page-bg);
+    resize:vertical; min-height:44px;
+  }
+  @media print{
+    .doc-note-input{ display:none; }
+    .doc-note-text{ display:block; }
+    .doc-note.is-empty{ display:none; }
+  }
+
   .logo-img{ flex:none; height:76px; width:auto; display:block; }
 
   .save-status{
@@ -407,6 +424,11 @@
         <span class="label">Total</span>
         <span class="arrow"><svg viewBox="0 0 64 16"><path d="M0 8 H52 M42 2 L54 8 L42 14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         <span class="value" id="doc-total"></span>
+      </div>
+      <div class="doc-note" id="doc-note-block">
+        <div class="doc-note-label">Observação</div>
+        <div class="doc-note-text" id="doc-note-display"></div>
+        <textarea class="doc-note-input no-print" id="doc-note-input" rows="2" placeholder="Escreva aqui uma observação para este documento (opcional)"></textarea>
       </div>
     </div>
   </section>
@@ -904,6 +926,14 @@
     }
     rowsWrap.innerHTML = rowsHtml;
     document.getElementById("doc-total").textContent = fmtBRL.format(grandTotal(key));
+
+    var noteBlock = document.getElementById("doc-note-block");
+    var noteInput = document.getElementById("doc-note-input");
+    var noteDisplay = document.getElementById("doc-note-display");
+    var noteVal = (month && month.note) ? month.note : "";
+    if(noteInput && document.activeElement !== noteInput){ noteInput.value = noteVal; }
+    if(noteDisplay) noteDisplay.textContent = noteVal;
+    if(noteBlock) noteBlock.classList.toggle("is-empty", !noteVal.trim());
   }
 
   function renderHistory(){
@@ -1115,6 +1145,21 @@
     var delBtn = ev.target.closest('button[data-action="clear-month-product"]');
     if(delBtn){ clearMonthProduct(delBtn.getAttribute("data-id")); }
   });
+
+  var docNoteInputEl = document.getElementById("doc-note-input");
+  if(docNoteInputEl){
+    docNoteInputEl.addEventListener("input", function(){
+      var key = state.activeMonthKey;
+      var month = state.months[key];
+      if(!month) return;
+      month.note = docNoteInputEl.value;
+      var noteDisplay = document.getElementById("doc-note-display");
+      if(noteDisplay) noteDisplay.textContent = docNoteInputEl.value;
+      var noteBlock = document.getElementById("doc-note-block");
+      if(noteBlock) noteBlock.classList.toggle("is-empty", !docNoteInputEl.value.trim());
+      scheduleSave();
+    });
+  }
 
   document.getElementById("btn-print").addEventListener("click", function(){ window.print(); });
 
