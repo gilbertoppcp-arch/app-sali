@@ -253,6 +253,30 @@
     table.doc-table tbody td.desc.desc-editable{ cursor:default; text-decoration:none; }
   }
   table.doc-table tbody tr:last-child td{ border-bottom:none; }
+
+  @media screen and (max-width: 640px){
+    table.doc-table{ min-width:0; }
+    table.doc-table thead{ display:none; }
+    table.doc-table tbody{ display:flex; flex-direction:column; gap:10px; }
+    table.doc-table tbody tr{
+      display:flex; flex-direction:column; border:1px solid var(--line); border-radius:12px;
+      padding:10px 14px; background:var(--card-bg);
+    }
+    table.doc-table tbody tr:last-child td{ border-bottom:1px solid var(--line); }
+    table.doc-table tbody tr td:last-child{ border-bottom:none; }
+    table.doc-table tbody td{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:7px 0; border-bottom:1px dashed var(--line); white-space:normal; text-align:right;
+    }
+    table.doc-table tbody td.desc{
+      justify-content:flex-start; text-align:left; font-size:.98rem; padding-bottom:9px;
+    }
+    table.doc-table tbody td[data-label]:before{
+      content: attr(data-label); color:var(--ink-500); font-weight:700; font-size:.7rem;
+      letter-spacing:.03em; text-transform:uppercase; text-align:left; white-space:nowrap;
+    }
+    table.doc-table tbody td.doc-row-actions{ justify-content:flex-end; padding-top:9px; }
+  }
   .doc-total-row{
     display:flex; align-items:center; justify-content:space-between; gap:16px; background:var(--maroon-700);
     color:#fff; padding:14px 22px; font-weight:700;
@@ -846,12 +870,13 @@
       anyRows = true;
       var cost = monthCostSnapshot(p.id, key);
       var total = monthTotal(p.id, key);
+      var mesLabel = escapeHtml((month ? month.label : "Mês") + " (peças)");
       rowsHtml += '<tr>' +
         '<td class="desc desc-editable" data-action="edit-product" data-id="' + p.id + '" title="Toque para editar o produto (nome e custo cadastrado)">' + escapeHtml(p.name) + '</td>' +
-        '<td class="num">' + qty + '</td>' +
-        '<td class="num">' + lifetimeQty(p.id) + '</td>' +
-        '<td class="num">' + fmtBRL.format(cost) + '</td>' +
-        '<td class="num">' + fmtBRL.format(total) + '</td>' +
+        '<td class="num" data-label="' + mesLabel + '">' + qty + '</td>' +
+        '<td class="num" data-label="Total peças">' + lifetimeQty(p.id) + '</td>' +
+        '<td class="num" data-label="Custo unit.">' + fmtBRL.format(cost) + '</td>' +
+        '<td class="num" data-label="Custo total">' + fmtBRL.format(total) + '</td>' +
         '<td class="num no-print doc-row-actions">' +
           '<button class="icon-btn" data-action="edit-month-cost" data-id="' + p.id + '" title="Editar valor só neste mês">✎</button>' +
           '<button class="icon-btn" data-action="edit-product" data-id="' + p.id + '" title="Editar produto (nome e custo cadastrado)">🏷</button>' +
