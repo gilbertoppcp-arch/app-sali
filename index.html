@@ -229,6 +229,23 @@
   .doc-header .brand-block{ min-width:0; flex:1 1 200px; }
   .doc-header .brand-block h2{ margin:0 0 2px; font-size:1.15rem; letter-spacing:.03em; color:var(--maroon-900); overflow-wrap:break-word; }
   .doc-header .brand-block p{ margin:0; font-size:.8rem; color:var(--ink-500); line-height:1.5; }
+  .doc-period{ flex:none; margin-left:auto; text-align:right; min-width:0; }
+  .doc-period-label{
+    color:var(--ink-500); font-weight:700; letter-spacing:.03em; font-size:.7rem;
+    text-transform:uppercase; margin-bottom:3px;
+  }
+  .doc-period-text{ display:none; color:var(--maroon-900); font-weight:700; font-size:1rem; white-space:nowrap; }
+  .doc-period-select{
+    border:1px solid var(--line); border-radius:999px; padding:6px 12px; background:var(--page-bg);
+    font-family:inherit; font-size:.86rem; font-weight:700; color:var(--maroon-900);
+  }
+  @media print{
+    .doc-period-select{ display:none; }
+    .doc-period-text{ display:block; }
+  }
+  @media (max-width:480px){
+    .doc-period{ margin-left:0; text-align:left; }
+  }
   .doc-bar-thick{ height:30px; background:var(--maroon-700); }
   .doc-client{
     display:grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap:10px 22px;
@@ -403,6 +420,11 @@
       <div class="doc-header">
         <img class="logo-img" id="logo-doc" alt="Sali Meres — Moda Feminina">
         <div class="brand-block" id="doc-empresa"></div>
+        <div class="doc-period">
+          <div class="doc-period-label">Mês de referência</div>
+          <div class="doc-period-text" id="doc-period-text"></div>
+          <select class="doc-period-select no-print" id="doc-month-select" title="Escolher o mês de referência deste documento"></select>
+        </div>
       </div>
       <div class="doc-bar-thick"></div>
       <div class="doc-client" id="doc-cliente"></div>
@@ -745,12 +767,15 @@
   }
 
   function renderMonthSelect(){
-    var sel = document.getElementById("month-select");
     var keys = sortedMonthKeys();
-    sel.innerHTML = keys.map(function(k){
+    var optionsHtml = keys.map(function(k){
       var m = state.months[k];
       return '<option value="' + k + '"' + (k === state.activeMonthKey ? " selected" : "") + '>' + m.label + " " + k.split("-")[0] + '</option>';
     }).join("");
+    var sel = document.getElementById("month-select");
+    if(sel) sel.innerHTML = optionsHtml;
+    var docSel = document.getElementById("doc-month-select");
+    if(docSel) docSel.innerHTML = optionsHtml;
   }
 
   function renderSettings(){
@@ -887,6 +912,9 @@
 
     var key = state.activeMonthKey;
     var month = state.months[key];
+
+    var periodText = document.getElementById("doc-period-text");
+    if(periodText) periodText.textContent = month ? (month.label + " " + key.split("-")[0]) : "";
 
     var rowsWrap = document.getElementById("doc-rows");
     var rowsHtml = "";
@@ -1088,6 +1116,13 @@
     setActiveMonth(ev.target.value);
   });
   document.getElementById("btn-new-month").addEventListener("click", newMonth);
+
+  var docMonthSelectEl = document.getElementById("doc-month-select");
+  if(docMonthSelectEl){
+    docMonthSelectEl.addEventListener("change", function(ev){
+      setActiveMonth(ev.target.value);
+    });
+  }
 
   document.getElementById("launch-list").addEventListener("click", function(ev){
     var removeBtn = ev.target.closest('button[data-action="remove-launch"]');
